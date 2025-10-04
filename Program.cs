@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Parcial.Data;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,53 +19,55 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+builder.Services.AddHttpContextAccessor();
+
 var app = builder.Build();
 
-async Task SeedRolesAndAdminAsync(IServiceProvider services)
+async Task SeedUsersAsync(IServiceProvider services)
 {
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
-
-    if (!await roleManager.RoleExistsAsync("Coordinador"))
-        await roleManager.CreateAsync(new IdentityRole("Coordinador"));
 
     var coordinador = await userManager.FindByEmailAsync("coordinador@uni.edu");
     if (coordinador == null)
     {
-        coordinador = new IdentityUser
-        {
-            UserName = "coordinador@uni.edu",
-            Email = "coordinador@uni.edu",
-            EmailConfirmed = true
+        coordinador = new IdentityUser 
+        { 
+            UserName = "coordinador@uni.edu", 
+            Email = "coordinador@uni.edu", 
+            EmailConfirmed = true 
         };
         await userManager.CreateAsync(coordinador, "Admin123!");
-        await userManager.AddToRoleAsync(coordinador, "Coordinador");
     }
 
-    var alumno = await userManager.FindByEmailAsync("alumno@uni.edu");
+    var alumno = await userManager.FindByEmailAsync("alumno1@uni.edu");
     if (alumno == null)
     {
         alumno = new IdentityUser
         {
-            UserName = "alumno@uni.edu",
-            Email = "alumno@uni.edu",
+            UserName = "alumno1@uni.edu",
+            Email = "alumno1@uni.edu",
             EmailConfirmed = true
         };
         await userManager.CreateAsync(alumno, "Alumno123!");
-
     }
 }
 
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-    await SeedRolesAndAdminAsync(services);
+    await SeedUsersAsync(scope.ServiceProvider);
 }
 
 if (app.Environment.IsDevelopment())
-{
     app.UseMigrationsEndPoint();
-}
 else
 {
     app.UseExceptionHandler("/Home/Error");
@@ -77,10 +80,11 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseSession();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Cursos}/{action=Index}/{id?}");
-
 app.MapRazorPages();
 
 app.Run();

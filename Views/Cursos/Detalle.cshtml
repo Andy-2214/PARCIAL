@@ -1,7 +1,14 @@
 @model Parcial.Models.Curso
+@using Microsoft.AspNetCore.Http
 
 @{
     ViewData["Title"] = "Detalle del curso";
+
+    Context.Session.SetString("UltimoCursoNombre", Model.Nombre);
+    Context.Session.SetInt32("UltimoCursoId", Model.Id);
+
+    var ultimoCursoNombre = Context.Session.GetString("UltimoCursoNombre");
+    var ultimoCursoId = Context.Session.GetInt32("UltimoCursoId");
 }
 
 <h2>@Model.Nombre (@Model.Codigo)</h2>
@@ -28,4 +35,13 @@
 else
 {
     <p><span class="text-muted">Inicia sesión para inscribirte.</span></p>
+}
+
+@if (!string.IsNullOrEmpty(ultimoCursoNombre) && ultimoCursoId.HasValue)
+{
+    <p>
+        <a asp-action="Detalle" asp-route-id="@ultimoCursoId.Value">
+            Volver al curso @ultimoCursoNombre
+        </a>
+    </p>
 }
