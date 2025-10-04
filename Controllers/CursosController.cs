@@ -2,50 +2,68 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
 using Parcial.Data;
 using Parcial.Models;
 
 public class CursosController : Controller
 {
     private readonly ApplicationDbContext _context;
+   private readonly IDistributedCache _cache; 
     private readonly UserManager<IdentityUser> _userManager;
 
-    public CursosController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+    public CursosController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IDistributedCache cache)
     {
         _context = context;
         _userManager = userManager;
+        _cache = cache;
     }
 
     public async Task<IActionResult> Index(string? nombre, int? creditosMin, int? creditosMax, TimeSpan? horarioInicio, TimeSpan? horarioFin)
+{
+    const string cacheKey = "CursosActivos";
+    List<Curso> cursos;
+
+    var cached = await _cache.GetStringAsync(cacheKey);
+    if (!string.IsNullOrEmpty(cached))
     {
-        var cursos = await _context.Cursos.Where(c => c.Activo).ToListAsync();
-
-        if (!string.IsNullOrEmpty(nombre))
-            cursos = cursos.Where(c => c.Nombre.Contains(nombre)).ToList();
-
-        if (creditosMin.HasValue)
-            cursos = cursos.Where(c => c.Creditos >= creditosMin.Value).ToList();
-
-        if (creditosMax.HasValue)
-            cursos = cursos.Where(c => c.Creditos <= creditosMax.Value).ToList();
-
-        if (horarioInicio.HasValue)
-            cursos = cursos.Where(c => c.HorarioInicio >= horarioInicio.Value).ToList();
-
-        if (horarioFin.HasValue)
-            cursos = cursos.Where(c => c.HorarioFin <= horarioFin.Value).ToList();
-
-        return View(cursos);
+        cursos = JsonSerializer.Deserialize<List<Curso>>(cached)!;
+    }
+    else
+    {
+        cursos = await _context.Cursos.Where(c => c.Activo).ToListAsync();
+        var serialized = JsonSerializer.Serialize(cursos);
+        await _cache.SetStringAsync(cacheKey, serialized, new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60)
+        });
     }
 
-    public async Task<IActionResult> Detalle(int id)
-    {
-        var curso = await _context.Cursos.FindAsync(id);
-        if (curso == null || !curso.Activo)
-            return NotFound();
+    if (!string.IsNullOrEmpty(nombre))
+        cursos = cursos.Where(c => c.Nombre.Contains(nombre)).ToList();
+    if (creditosMin.HasValue)
+        cursos = cursos.Where(c => c.Creditos >= creditosMin.Value).ToList();
+    if (creditosMax.HasValue)
+        cursos = cursos.Where(c => c.Creditos <= creditosMax.Value).ToList();
+    if (horarioInicio.HasValue)
+        cursos = cursos.Where(c => c.HorarioInicio >= horarioInicio.Value).ToList();
+    if (horarioFin.HasValue)
+        cursos = cursos.Where(c => c.HorarioFin <= horarioFin.Value).ToList();
 
-        return View(curso);
-    }
+    return View(cursos);
+}
+
+ public async Task<IActionResult> Detalle(int id)
+{
+    var curso = await _context.Cursos.FindAsync(id);
+    if (curso == null || !curso.Activo)
+        return NotFound();
+
+    HttpContext.Session.SetString("UltimoCurso", curso.Nombre);
+
+    return View(curso);
+}
 
     [Authorize]
     [HttpPost]
