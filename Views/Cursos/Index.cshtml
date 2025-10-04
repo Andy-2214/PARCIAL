@@ -6,6 +6,15 @@
 
 <h2>@ViewData["Title"]</h2>
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
 <form method="get" asp-action="Index" class="mb-3">
     <input type="text" name="nombre" placeholder="Nombre del curso" value="@Context.Request.Query["nombre"]" />
     <input type="number" name="creditosMin" placeholder="Créditos mín" value="@Context.Request.Query["creditosMin"]" />
