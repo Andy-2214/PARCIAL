@@ -1,0 +1,11 @@
+@model Parcial.Models.Curso
+
+@{
+    ViewData["Title"] = "Detalle del curso";
+}
+
+<h2>@Model.Nombre (@Model.Codigo)</h2>
+
+<p><b>Créditos:</b> @Model.Creditos</p>
+<p><b>Horario:</b> @Model.HorarioInicio - @Model.HorarioFin</p>
+<p><b>Cupo máximo:</b> @Model.CupoMaximo</p>
