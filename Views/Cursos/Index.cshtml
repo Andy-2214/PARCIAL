@@ -1,0 +1,42 @@
+@model IEnumerable<Parcial.Models.Curso>
+
+@{
+    ViewData["Title"] = "Catálogo de cursos";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form method="get" asp-action="Index" class="mb-3">
+    <input type="text" name="nombre" placeholder="Nombre del curso" value="@Context.Request.Query["nombre"]" />
+    <input type="number" name="creditosMin" placeholder="Créditos mín" value="@Context.Request.Query["creditosMin"]" />
+    <input type="number" name="creditosMax" placeholder="Créditos máx" value="@Context.Request.Query["creditosMax"]" />
+    <input type="time" name="horarioInicio" placeholder="Horario inicio" value="@Context.Request.Query["horarioInicio"]" />
+    <input type="time" name="horarioFin" placeholder="Horario fin" value="@Context.Request.Query["horarioFin"]" />
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Créditos</th>
+            <th>Horario</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var curso in Model)
+    {
+        <tr>
+            <td>@curso.Codigo</td>
+            <td>@curso.Nombre</td>
+            <td>@curso.Creditos</td>
+            <td>@curso.HorarioInicio - @curso.HorarioFin</td>
+            <td>
+                <a asp-action="Detalle" asp-route-id="@curso.Id" class="btn btn-link">Ver Detalle</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
