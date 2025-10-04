@@ -40,6 +40,19 @@ async Task SeedRolesAndAdminAsync(IServiceProvider services)
         await userManager.CreateAsync(coordinador, "Admin123!");
         await userManager.AddToRoleAsync(coordinador, "Coordinador");
     }
+
+    var alumno = await userManager.FindByEmailAsync("alumno@uni.edu");
+    if (alumno == null)
+    {
+        alumno = new IdentityUser
+        {
+            UserName = "alumno@uni.edu",
+            Email = "alumno@uni.edu",
+            EmailConfirmed = true
+        };
+        await userManager.CreateAsync(alumno, "Alumno123!");
+
+    }
 }
 
 using (var scope = app.Services.CreateScope())
