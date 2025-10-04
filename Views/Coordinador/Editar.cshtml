@@ -1,0 +1,48 @@
+@model Parcial.Models.Curso
+
+@{
+    ViewData["Title"] = "Editar Curso";
+}
+
+<h2>Editar Curso</h2>
+
+<form asp-action="Editar" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label asp-for="Codigo" class="form-label"></label>
+        <input asp-for="Codigo" class="form-control" />
+        <span asp-validation-for="Codigo" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Nombre" class="form-label"></label>
+        <input asp-for="Nombre" class="form-control" />
+        <span asp-validation-for="Nombre" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Creditos" class="form-label"></label>
+        <input asp-for="Creditos" class="form-control" />
+        <span asp-validation-for="Creditos" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="CupoMaximo" class="form-label"></label>
+        <input asp-for="CupoMaximo" class="form-control" />
+        <span asp-validation-for="CupoMaximo" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="HorarioInicio" class="form-label"></label>
+        <input asp-for="HorarioInicio" type="time" class="form-control" />
+        <span asp-validation-for="HorarioInicio" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="HorarioFin" class="form-label"></label>
+        <input asp-for="HorarioFin" type="time" class="form-control" />
+        <span asp-validation-for="HorarioFin" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,34 @@
+@model Parcial.Models.Curso
+
+@{
+    ViewData["Title"] = "Matrículas del curso";
+}
+
+<h2>Matrículas - @Model.Nombre (@Model.Codigo)</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>Fecha Registro</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var matricula in Model.Matriculas)
+    {
+        <tr>
+            <td>@matricula.UsuarioId</td>
+            <td>@matricula.FechaRegistro</td>
+            <td>@matricula.Estado</td>
+            <td>
+                <a class="btn btn-success btn-sm" asp-action="Confirmar" asp-route-id="@matricula.Id">Confirmar</a>
+                <a class="btn btn-danger btn-sm" asp-action="Cancelar" asp-route-id="@matricula.Id">Cancelar</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Volver</a>

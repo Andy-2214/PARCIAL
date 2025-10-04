@@ -1,0 +1,41 @@
+@model IEnumerable<Parcial.Models.Curso>
+
+@{
+    ViewData["Title"] = "Panel Coordinador";
+}
+
+<h2>Panel Coordinador - Cursos</h2>
+
+<a class="btn btn-success mb-2" asp-action="Crear">Crear Curso</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Créditos</th>
+            <th>Cupo</th>
+            <th>Horario</th>
+            <th>Activo</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var curso in Model)
+    {
+        <tr>
+            <td>@curso.Codigo</td>
+            <td>@curso.Nombre</td>
+            <td>@curso.Creditos</td>
+            <td>@curso.CupoMaximo</td>
+            <td>@curso.HorarioInicio - @curso.HorarioFin</td>
+            <td>@curso.Activo</td>
+            <td>
+                <a class="btn btn-primary btn-sm" asp-action="Editar" asp-route-id="@curso.Id">Editar</a>
+                <a class="btn btn-warning btn-sm" asp-action="Desactivar" asp-route-id="@curso.Id">Desactivar</a>
+                <a class="btn btn-info btn-sm" asp-action="MatriculasCurso" asp-route-cursoId="@curso.Id">Ver Matrículas</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
